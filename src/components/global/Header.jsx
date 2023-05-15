@@ -35,7 +35,7 @@ const Header = () => {
         {isMobile ? (
           <DrawerComponent />
         ) : (
-          <div
+          <Box
             style={{
               display: "flex",
               alignItems: "center",
@@ -69,9 +69,9 @@ const Header = () => {
                 },
               }}
             >
-              Profile
+              Create Profile
             </Link>
-          </div>
+          </Box>
         )}
       </Toolbar>
     </Box>
