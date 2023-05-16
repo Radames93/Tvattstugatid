@@ -1,5 +1,5 @@
 import React from "react";
-import Logo from "../../assets/logo.svg";
+import Logo from "../../assets/logo.png";
 import Toolbar from "@mui/material/Toolbar";
 import { Box, useTheme, useMediaQuery } from "@mui/material";
 import { Link } from "react-router-dom";
@@ -13,6 +13,7 @@ const Header = () => {
     <Box
       sx={{
         padding: "10px",
+        backgroundColor: "#000000",
       }}
     >
       <Toolbar

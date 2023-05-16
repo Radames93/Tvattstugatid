@@ -1,230 +1,126 @@
-import React, { useState, useEffect } from "react";
-import {
-  TextField,
-  Button,
-  Box,
-  Typography,
-  FormControlLabel,
-  Checkbox,
-} from "@mui/material";
+import React from "react";
+import { Button, Box, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import Grid from "@mui/material/Unstable_Grid2";
+import TextFields from "../components/TextFields";
+import CheckboxField from "../components/CheckboxField";
+import { Grid } from "@mui/material";
+import { Container } from "@mui/material";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { pawdRegExp } from "../utils";
+
+// create scheme validation
+const schema = yup.object({
+  firstName: yup.string().required("First Name is required"),
+  lastName: yup.string().required("Last Name is required"),
+  email: yup.string().required("Email is required").email(),
+  password: yup
+    .string()
+    .required("Password is required")
+    .matches(
+      pawdRegExp,
+      "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
+    ),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password"), null], "Password must match"),
+  privacy: yup.boolean().oneOf([true], "Field must be checked"),
+});
 
 const Profile = () => {
-  const [inputValues, setInputValue] = useState({
-    fName: "",
-    lName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+  const {
+    handleSubmit,
+    reset,
+    formState: { errors },
+    control,
+  } = useForm({
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      privacy: false,
+    },
+    resolver: yupResolver(schema),
   });
 
-  const [validation, setValidation] = useState({
-    fName: "",
-    lName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  //handle submit updates
-  function handleChange(event) {
-    const { name, value } = event.target;
-    setInputValue({ ...inputValues, [name]: value });
-  }
-
-  const checkValidation = () => {
-    let errors = validation;
-
-    //first Name validation
-    if (!inputValues.fName.trim()) {
-      errors.fName = "First name is required";
-    } else {
-      errors.fName = "";
-    }
-    //last Name validation
-    if (!inputValues.lName.trim()) {
-      errors.lName = "Last name is required";
-    } else {
-      errors.lName = "";
-    }
-
-    // email validation
-    const emailCond =
-      "/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*$/";
-    if (!inputValues.email.trim()) {
-      errors.email = "Email is required";
-    } else if (!inputValues.email.match(emailCond)) {
-      errors.email = "Please ingress a valid email address";
-    } else {
-      errors.email = "";
-    }
-
-    //password validation
-    const cond1 = "/^(?=.*[a-z]).{6,20}$/";
-    const cond2 = "/^(?=.*[A-Z]).{6,20}$/";
-    const cond3 = "/^(?=.*[0-9]).{6,20}$/";
-    const password = inputValues.password;
-    if (!password) {
-      errors.password = "password is required";
-    } else if (password.length < 6) {
-      errors.password = "Password must be longer than 6 characters";
-    } else if (password.length >= 20) {
-      errors.password = "Password must shorter than 20 characters";
-    } else if (!password.match(cond1)) {
-      errors.password = "Password must contain at least one lowercase";
-    } else if (!password.match(cond2)) {
-      errors.password = "Password must contain at least one capital letter";
-    } else if (!password.match(cond3)) {
-      errors.password = "Password must contain at least a number";
-    } else {
-      errors.password = "";
-    }
-
-    //matchPassword validation
-    if (!inputValues.confirmPassword) {
-      errors.confirmPassword = "Password confirmation is required";
-    } else if (inputValues.confirmPassword !== inputValues.Password) {
-      errors.confirmPassword = "Password does not match confirmation password";
-    } else {
-      errors.password = "";
-    }
-
-    setValidation(errors);
+  const onSubmit = (data) => {
+    console.log(data);
+    reset();
   };
-
-  useEffect(() => {
-    checkValidation();
-  }, [inputValues]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  };
-
   return (
-    <Box
-      sx={{
-        padding: "10px",
-      }}
-    >
-      <Typography
-        sx={{
-          color: "white",
-          fontSize: "20px",
-          textAlign: "center",
-          mb: 4,
-        }}
+    <Container maxWidth="xs">
+      <Grid
+        container
+        spacing={0}
+        direction="column"
+        alignItems="center"
+        justifyContent="center"
       >
-        Register Form
-      </Typography>
-      <Box component="form" noValidate onSubmit={handleSubmit}>
-        <Grid
-          container
-          spacing={2}
-          direction="column"
-          alignItems="center"
-          justifyContent="center"
+        <Typography
+          sx={{
+            color: "#121212",
+            fontSize: "20px",
+            textAlign: "center",
+            my: 2,
+          }}
         >
-          <Grid xs={12} sm={6}>
-            <TextField
-              name="fName"
-              type="text"
-              variant="outlined"
-              color="secondary"
-              label="First Name"
-              id="fName"
-              onChange={(e) => handleChange(e)}
-              value={inputValues.fName}
-              fullWidth
-              required
-            />
-            {validation.fName && <p>{validation.fName}</p>}
-            {validation.fName && console.log(validation)}
-          </Grid>
-          <Grid xs={12} sm={6}>
-            <TextField
-              name="lName"
-              type="text"
-              variant="outlined"
-              color="secondary"
-              label="Last Name"
-              id="lName"
-              onChange={(e) => handleChange(e)}
-              value={inputValues.lName}
-              fullWidth
-              required
-            />
-            {validation.lName && <p>{validation.lName}</p>}
-            {validation.lName && console.log(validation)}
-          </Grid>
-          <Grid xs={12} sm={6}>
-            <TextField
-              name="email"
-              type="email"
-              variant="outlined"
-              color="secondary"
-              label="Email"
-              id="email"
-              onChange={(e) => handleChange(e)}
-              value={inputValues.email}
-              fullWidth
-              required
-            />
-            {validation.email && <p>{validation.email}</p>}
-            {validation.email && console.log(validation)}
-          </Grid>
-          <Grid xs={12} sm={6}>
-            <TextField
-              name="password"
-              type="password"
-              variant="outlined"
-              color="secondary"
-              label="Password"
-              id="password"
-              onChange={(e) => handleChange(e)}
-              value={inputValues.password}
-              fullWidth
-              required
-            />
-            {validation.password && <p>{validation.password}</p>}
-            {validation.password && console.log(validation)}
-          </Grid>
-          <Grid xs={12} sm={6}>
-            <TextField
-              name="confirmPassword"
-              type="password"
-              variant="outlined"
-              color="secondary"
-              label="Confirm Password"
-              id="confirmPassword"
-              onChange={(e) => handleChange(e)}
-              value={inputValues.confirmPassword}
-              fullWidth
-              required
-            />
-            {validation.confirmPassword && <p>{validation.confirmPassword}</p>}
-            {validation.confirmPassword && console.log(validation)}
-          </Grid>
-          <Grid xs={12} sm={6}>
-            <FormControlLabel
-              control={<Checkbox />}
-              label="I Agree to Terms and Privacy Policy"
-            />
-          </Grid>
+          Register Form
+        </Typography>
+        <Box
+          noValidate
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          sx={{ width: "100%", mt: "2rem" }}
+        >
+          <TextFields
+            errors={errors}
+            control={control}
+            name="firstName"
+            label="First Name"
+          />
+          <TextFields
+            errors={errors}
+            control={control}
+            name="lastName"
+            label="Last Name"
+          />
+          <TextFields
+            errors={errors}
+            control={control}
+            name="email"
+            label="Email"
+          />
+          <TextFields
+            errors={errors}
+            control={control}
+            name="password"
+            label="Password"
+          />
+          <TextFields
+            errors={errors}
+            control={control}
+            name="confirmPassword"
+            label="Confirm Password"
+          />
+          <CheckboxField errors={errors} control={control} name="privacy" />
           <Button
-            variant="outlined"
-            color="secondary"
             type="submit"
-            sx={{ mb: 4 }}
+            color="secondary"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
           >
             Register
           </Button>
-          <Typography>
-            Already have an account? <Link to="/">Login Here</Link>
-          </Typography>
-        </Grid>
-      </Box>
-    </Box>
+        </Box>
+        <Typography>
+          Already have an account? <Link to="/">Login Here</Link>
+        </Typography>
+      </Grid>
+    </Container>
   );
 };
 export default Profile;
