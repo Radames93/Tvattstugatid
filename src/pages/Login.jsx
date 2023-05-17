@@ -1,5 +1,11 @@
 import React from "react";
+import { Typography, Button } from "@mui/material";
 const Login = () => {
-  return <h1>Login</h1>;
+  return (
+    <>
+      <Typography>Sign In With Google to Continue</Typography>
+      <Button>Sign In With Google</Button>
+    </>
+  );
 };
 export default Login;

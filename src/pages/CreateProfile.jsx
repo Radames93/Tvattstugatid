@@ -1,5 +1,5 @@
-import React from "react";
-import { Button, Box, Typography } from "@mui/material";
+import React, { useState } from "react";
+import { Button, Box, Typography, Alert, checkboxClasses } from "@mui/material";
 import { Link } from "react-router-dom";
 import TextFields from "../components/TextFields";
 import CheckboxField from "../components/CheckboxField";
@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { pawdRegExp } from "../utils";
+import { useAuth } from "../contexts/AuthContext";
 
 // create scheme validation
 const schema = yup.object({
@@ -27,8 +28,10 @@ const schema = yup.object({
     .oneOf([yup.ref("password"), null], "Password must match"),
   privacy: yup.boolean().oneOf([true], "Field must be checked"),
 });
-
 const Profile = () => {
+  const { register, currentUser } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const {
     handleSubmit,
     reset,
@@ -46,8 +49,23 @@ const Profile = () => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log(data);
+    try {
+      setError("");
+      setLoading(true);
+      await register(
+        data.firstName,
+        data.lastName,
+        data.email,
+        data.password,
+        data.confirmPassword,
+        data.privacy
+      );
+    } catch {
+      setError("Failed to create an account");
+    }
+    setLoading(false);
     reset();
   };
   return (
@@ -69,6 +87,7 @@ const Profile = () => {
         >
           Register Form
         </Typography>
+        {error}
         <Box
           noValidate
           component="form"
@@ -107,6 +126,7 @@ const Profile = () => {
           />
           <CheckboxField errors={errors} control={control} name="privacy" />
           <Button
+            disabled={loading}
             type="submit"
             color="secondary"
             fullWidth
