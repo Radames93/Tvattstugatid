@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Box, Typography, Alert, checkboxClasses } from "@mui/material";
+import { Button, Box, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import TextFields from "../components/TextFields";
 import CheckboxField from "../components/CheckboxField";
@@ -13,8 +13,6 @@ import { useAuth } from "../contexts/AuthContext";
 
 // create scheme validation
 const schema = yup.object({
-  firstName: yup.string().required("First Name is required"),
-  lastName: yup.string().required("Last Name is required"),
   email: yup.string().required("Email is required").email(),
   password: yup
     .string()
@@ -26,7 +24,6 @@ const schema = yup.object({
   confirmPassword: yup
     .string()
     .oneOf([yup.ref("password"), null], "Password must match"),
-  privacy: yup.boolean().oneOf([true], "Field must be checked"),
 });
 const Profile = () => {
   const { register, currentUser } = useAuth();
@@ -39,12 +36,9 @@ const Profile = () => {
     control,
   } = useForm({
     defaultValues: {
-      firstName: "",
-      lastName: "",
       email: "",
       password: "",
       confirmPassword: "",
-      privacy: false,
     },
     resolver: yupResolver(schema),
   });
@@ -54,14 +48,7 @@ const Profile = () => {
     try {
       setError("");
       setLoading(true);
-      await register(
-        data.firstName,
-        data.lastName,
-        data.email,
-        data.password,
-        data.confirmPassword,
-        data.privacy
-      );
+      await register(data.email, data.password);
     } catch {
       setError("Failed to create an account");
     }
@@ -97,18 +84,6 @@ const Profile = () => {
           <TextFields
             errors={errors}
             control={control}
-            name="firstName"
-            label="First Name"
-          />
-          <TextFields
-            errors={errors}
-            control={control}
-            name="lastName"
-            label="Last Name"
-          />
-          <TextFields
-            errors={errors}
-            control={control}
             name="email"
             label="Email"
           />
@@ -124,7 +99,6 @@ const Profile = () => {
             name="confirmPassword"
             label="Confirm Password"
           />
-          <CheckboxField errors={errors} control={control} name="privacy" />
           <Button
             disabled={loading}
             type="submit"
