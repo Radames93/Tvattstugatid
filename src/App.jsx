@@ -3,21 +3,38 @@ import Login from "./pages/Login";
 import Footer from "./components/global/Footer";
 import Profile from "./pages/CreateProfile";
 import CalendarBooking from "./pages/CalendarBooking";
-import { Route, Routes } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import Logout from "./pages/Logout";
 
 const App = () => {
   return (
     <>
-      <Header />
       <AuthProvider>
+        <Header />
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/calendar" element={<CalendarBooking />} />
+          <Route
+            path="/calendar"
+            element={
+              <ProtectedRoute>
+                <CalendarBooking />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/logout"
+            element={
+              <ProtectedRoute>
+                <Logout />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
+        <Footer />
       </AuthProvider>
-      <Footer />
     </>
   );
 };

@@ -26,7 +26,7 @@ const schema = yup.object({
     .oneOf([yup.ref("password"), null], "Password must match"),
 });
 const Profile = () => {
-  const { register, currentUser } = useAuth();
+  const { register } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const {

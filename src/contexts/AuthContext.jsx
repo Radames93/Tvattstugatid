@@ -14,13 +14,13 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState();
-  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState({});
+  const [loading, setLoading] = useState(true);
 
   async function register(email, password) {
     try {
-      const user = createUserWithEmailAndPassword(auth, email, password);
+      const user = await createUserWithEmailAndPassword(auth, email, password);
+      return user;
     } catch (error) {
       console.log(error);
     }
@@ -29,45 +29,29 @@ export function AuthProvider({ children }) {
   async function login(email, password) {
     try {
       const user = await signInWithEmailAndPassword(auth, email, password);
-      console.log(user);
+      return user;
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
     }
   }
 
-  const logout = async () => {
+  async function logout() {
     await signOut(auth);
-  };
-
-  function resetPassword(email) {
-    return auth.sendPasswordResetEmail(email);
-  }
-
-  function updateEmail(email) {
-    return currentUser.updateEmail(email);
-  }
-
-  function updatePassword(password) {
-    return currentUser.updatePassword(password);
   }
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
       setLoading(false);
     });
-
     return unsubscribe;
   }, []);
 
   const value = {
-    currentUser,
+    user,
     login,
     register,
     logout,
-    resetPassword,
-    updateEmail,
-    updatePassword,
   };
 
   return (
@@ -76,3 +60,7 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
+
+export const UserAuth = () => {
+  return useContext(AuthContext);
+};

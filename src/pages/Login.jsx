@@ -8,10 +8,25 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { pawdRegExp } from "../utils";
-import { useAuth } from "../contexts/AuthContext";
+import { UserAuth } from "../contexts/AuthContext";
 
-const Profile = () => {
-  const { login } = useAuth();
+// create scheme validation
+const schema = yup.object({
+  email: yup.string().required("Email is required").email(),
+  password: yup
+    .string()
+    .required("Password is required")
+    .matches(
+      pawdRegExp,
+      "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
+    ),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password"), null], "Password must match"),
+});
+const Login = () => {
+  const [display, setDisplay] = useState(false);
+  const { login } = UserAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -25,21 +40,28 @@ const Profile = () => {
       email: "",
       password: "",
     },
+    resolver: yupResolver(schema),
   });
 
-  const onSubmit = async (data) => {
+  async function onSubmit(data) {
     console.log(data);
     try {
       setError("");
       setLoading(true);
       await login(data.email, data.password);
-      navigate("/calendar");
+      setDisplay(true);
+      if (display === true) {
+        navigate("/calendar");
+      } else {
+        setError("Failed to Sign In");
+      }
+      setLoading(false);
+      reset();
     } catch {
-      setError("Failed to log in");
+      console.log("error");
     }
-    setLoading(false);
-    reset();
-  };
+  }
+
   return (
     <Container maxWidth="xs">
       <Grid
@@ -96,4 +118,4 @@ const Profile = () => {
     </Container>
   );
 };
-export default Profile;
+export default Login;
