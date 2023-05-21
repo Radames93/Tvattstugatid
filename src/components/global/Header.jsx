@@ -1,13 +1,15 @@
 import React from "react";
 import Logo from "../../assets/logo.png";
 import Toolbar from "@mui/material/Toolbar";
-import { Box, useTheme, useMediaQuery } from "@mui/material";
+import { Box, useTheme, useMediaQuery, Avatar } from "@mui/material";
 import { Link } from "react-router-dom";
 import DrawerComponent from "../DrawerComponent";
+import { UserAuth } from "../../contexts/AuthContext";
 
 const Header = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { user } = UserAuth();
 
   return (
     <Box
@@ -44,34 +46,70 @@ const Header = () => {
               width: "300px",
             }}
           >
-            <Link
-              to="/"
-              style={{
-                textDecoration: "none",
-                color: "white",
-                fontSize: "20px",
-                "&:hover": {
-                  color: "yellow",
-                  borderBottom: "1px solid white",
-                },
-              }}
-            >
-              Login
-            </Link>
-            <Link
-              to="/profile"
-              style={{
-                textDecoration: "none",
-                color: "white",
-                fontSize: "20px",
-                "&:hover": {
-                  color: "yellow",
-                  borderBottom: "1px solid white",
-                },
-              }}
-            >
-              Create Profile
-            </Link>
+            {!user ? (
+              <>
+                <Link
+                  to="/"
+                  style={{
+                    textDecoration: "none",
+                    color: "white",
+                    fontSize: "20px",
+                    "&:hover": {
+                      color: "yellow",
+                      borderBottom: "1px solid white",
+                    },
+                  }}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/profile"
+                  style={{
+                    textDecoration: "none",
+                    color: "white",
+                    fontSize: "20px",
+                    "&:hover": {
+                      color: "yellow",
+                      borderBottom: "1px solid white",
+                    },
+                  }}
+                >
+                  Create Profile
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/calendar"
+                  style={{
+                    textDecoration: "none",
+                    color: "white",
+                    fontSize: "20px",
+                    "&:hover": {
+                      color: "yellow",
+                      borderBottom: "1px solid white",
+                    },
+                  }}
+                >
+                  Booking
+                </Link>
+                <Link
+                  to="/logout"
+                  style={{
+                    textDecoration: "none",
+                    color: "white",
+                    fontSize: "20px",
+                    "&:hover": {
+                      color: "yellow",
+                      borderBottom: "1px solid white",
+                    },
+                  }}
+                >
+                  Logout
+                </Link>
+                <Avatar alt="Remy Sharp" />
+              </>
+            )}
           </Box>
         )}
       </Toolbar>

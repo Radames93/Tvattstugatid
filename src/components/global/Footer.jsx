@@ -1,3 +1,4 @@
+import * as React from "react";
 import Typography from "@mui/material/Typography";
 
 const Footer = () => {
@@ -5,17 +6,17 @@ const Footer = () => {
     <Typography
       data-testid="footer"
       sx={{
-        position: "sticky",
-        top: "100%",
+        backgroundColor: "#000000",
+        position: "fixed",
+        bottom: "0",
+        width: "100%",
         textAlign: "center",
         p: "10px",
+        color: "white",
       }}
     >
       <strong fontFamily="Source Sans Pro" fontWeight="700" fontSize="16px">
-        Copyright © 2022-2023
-        <a href="https://f-r.se/" style={{ marginLeft: 5 }}>
-          Fastighetsservice Ab
-        </a>
+        Copyright © 2022-2023 <a href="https://f-r.se/">FastighetService</a>
       </strong>
       <span
         fontFamily="Source Sans Pro"

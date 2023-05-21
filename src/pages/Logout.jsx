@@ -1,8 +1,9 @@
 import React from "react";
 import { UserAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Button, Container, Grid, Typography } from "@mui/material";
 const CalendarBooking = () => {
-  const { user, logout } = UserAuth();
+  const { logout } = UserAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -16,10 +17,36 @@ const CalendarBooking = () => {
   };
 
   return (
-    <div>
-      <p>User Email: {user && user.email}</p>
-      <button onClick={handleLogout}>Logout</button>
-    </div>
+    <Container maxWidth="xs">
+      <Grid
+        container
+        spacing={0}
+        direction="column"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Typography
+          sx={{
+            color: "#121212",
+            fontSize: "20px",
+            textAlign: "center",
+            my: 2,
+          }}
+        >
+          Do you want to sign out
+        </Typography>
+        <Button
+          type="submit"
+          color="secondary"
+          fullWidth
+          variant="contained"
+          sx={{ mt: 3, mb: 2 }}
+          onClick={handleLogout}
+        >
+          Logout
+        </Button>
+      </Grid>
+    </Container>
   );
 };
 
