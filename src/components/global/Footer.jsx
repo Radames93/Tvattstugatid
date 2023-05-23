@@ -7,9 +7,8 @@ const Footer = () => {
       data-testid="footer"
       sx={{
         backgroundColor: "#000000",
-        position: "fixed",
-        bottom: "0",
-        width: "100%",
+        position: "sticky",
+        top: "100%",
         textAlign: "center",
         p: "10px",
         color: "white",
