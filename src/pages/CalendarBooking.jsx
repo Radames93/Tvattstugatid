@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { formatDate } from "@fullcalendar/core";
 import FullCalendar from "@fullcalendar/react";
 import Grid from "@mui/material/Unstable_Grid2";
@@ -8,31 +8,90 @@ import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import { Box, List, ListItem, ListItemText, Typography } from "@mui/material";
 import MyModal from "../components/SelectHoursModal";
+import { db } from "../firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 const CalendarBooking = () => {
   const [currentEvents, setCurrentEvents] = useState([]);
   const [open, setOpen] = useState(false);
+  const [data, setData] = useState({});
+  const bookingCollectionRef = collection(db, "booking");
 
-  const handleSelect = () => {
-    setOpen(true);
+  const changeMessage = (newMessage) => {
+    setData(newMessage);
+    console.log(data);
   };
 
-  const handleEventClick = (selected) => {
+  const handleReset = () => {
+    setData({ data: {} });
+    console.log(data);
+  };
+
+  const handleDateSelect = (selectInfo) => {
+    let title = data?.title;
+    let id = data?.unique_id;
+    console.log(data);
+    let calendarApi = selectInfo.view.calendar;
+    let start = selectInfo.startStr;
+    let end = selectInfo.endStr;
+
+    calendarApi.unselect(); // clear date selection
+
+    if (title) {
+      calendarApi.addEvent({
+        id,
+        title,
+        start: start,
+        end: end,
+      });
+    } else {
+      console.log("not added");
+    }
+    setTimeout(function () {
+      handleReset();
+    }, 15000);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleOpen = (selectInfo) => {
+    setOpen(true);
+    setTimeout(function () {
+      handleClose(), handleDateSelect(selectInfo);
+    }, 7000);
+  };
+
+  function handleEventClick(clickInfo) {
     if (
-      window.confirm(
-        `Are you sure you want to delete the event '${selected.event.title}'`
+      confirm(
+        `Are you sure you want to delete the event '${clickInfo.event.title}'`
       )
     ) {
-      selected.event.remove();
+      clickInfo.event.remove();
     }
-  };
+  }
+
+  function renderEventContent(eventInfo) {
+    return (
+      <>
+        <b>{eventInfo.timeText}</b>
+        <i>{eventInfo.event.title}</i>
+      </>
+    );
+  }
+
+  async function handleEventAdd() {
+    await addDoc(bookingCollectionRef, { data });
+  }
 
   return (
     <Box m="20px">
       <Grid container spacing={2}>
         <Grid xs={12} md={4}>
           <Box p="15px" borderRadius="4px">
-            <Typography variant="h5">Events</Typography>
+            <Typography variant="h5">Your Bookings</Typography>
             <List>
               {currentEvents.map((event) => (
                 <ListItem
@@ -62,6 +121,7 @@ const CalendarBooking = () => {
         <Grid xs={12} md={8}>
           <Box mx="20px">
             <FullCalendar
+              locale="sv"
               height="75vh"
               plugins={[
                 dayGridPlugin,
@@ -79,10 +139,10 @@ const CalendarBooking = () => {
               editable={true}
               selectable={true}
               selectMirror={true}
-              dayMaxEvents={true}
-              select={handleSelect}
-              longPressDelay={1}
+              select={handleOpen}
+              eventContent={renderEventContent} // custom render function
               eventClick={handleEventClick}
+              longPressDelay={1}
               eventsSet={(events) => setCurrentEvents(events)}
               initialEvents={[
                 {
@@ -96,9 +156,17 @@ const CalendarBooking = () => {
                   date: "2022-09-28",
                 },
               ]}
+              eventAdd={(event) => handleEventAdd(event)}
             />
           </Box>
-          {open && <MyModal setOpen={setOpen} />}
+          {open && (
+            <MyModal
+              open
+              handleOpen={handleOpen}
+              handleClose={handleClose}
+              changeMessage={changeMessage}
+            />
+          )}
         </Grid>
       </Grid>
     </Box>
