@@ -9,58 +9,53 @@ import listPlugin from "@fullcalendar/list";
 import { Box, List, ListItem, ListItemText, Typography } from "@mui/material";
 import MyModal from "../components/SelectHoursModal";
 import { db } from "../firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs } from "firebase/firestore";
+import QrCode from "../components/QrCode";
 
 const CalendarBooking = () => {
   const [currentEvents, setCurrentEvents] = useState([]);
+  const [bookings, setBooking] = useState([]);
   const [open, setOpen] = useState(false);
   const [data, setData] = useState({});
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
   const bookingCollectionRef = collection(db, "booking");
 
   const changeMessage = (newMessage) => {
     setData(newMessage);
+    console.log(newMessage);
     console.log(data);
-  };
-
-  const handleReset = () => {
-    setData({ data: {} });
-    console.log(data);
-  };
-
-  const handleDateSelect = (selectInfo) => {
-    let title = data?.title;
-    let id = data?.unique_id;
-    console.log(data);
-    let calendarApi = selectInfo.view.calendar;
-    let start = selectInfo.startStr;
-    let end = selectInfo.endStr;
-
-    calendarApi.unselect(); // clear date selection
-
-    if (title) {
-      calendarApi.addEvent({
-        id,
-        title,
-        start: start,
-        end: end,
-      });
-    } else {
-      console.log("not added");
-    }
-    setTimeout(function () {
-      handleReset();
-    }, 15000);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
   };
 
   const handleOpen = (selectInfo) => {
     setOpen(true);
     setTimeout(function () {
       handleClose(), handleDateSelect(selectInfo);
-    }, 7000);
+    }, 10000);
+  };
+
+  const handleDateSelect = async (selectInfo) => {
+    let title = data?.title;
+    let id = data?.unique_id;
+    let calendarApi = selectInfo.view.calendar;
+    setStart(selectInfo.startStr);
+    setEnd(selectInfo.endStr);
+    if (title) {
+      calendarApi.addEvent({
+        id,
+        title,
+        start,
+        end,
+      });
+      setData({ start: start, end: end });
+    } else {
+      console.log("not added");
+    }
+    console.log(data);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
   };
 
   function handleEventClick(clickInfo) {
@@ -84,6 +79,16 @@ const CalendarBooking = () => {
 
   async function handleEventAdd() {
     await addDoc(bookingCollectionRef, { data });
+  }
+
+  async function handleDateSet() {
+    const querySnapshot = await getDocs(bookingCollectionRef);
+    const data = querySnapshot.docs.map((doc) => doc.data());
+    data.map((booking) => {
+      console.log(booking.data);
+      setBooking(booking.data);
+      console.log(bookings);
+    });
   }
 
   return (
@@ -113,6 +118,7 @@ const CalendarBooking = () => {
                       </Typography>
                     }
                   />
+                  <QrCode />
                 </ListItem>
               ))}
             </List>
@@ -156,7 +162,8 @@ const CalendarBooking = () => {
                   date: "2022-09-28",
                 },
               ]}
-              eventAdd={(event) => handleEventAdd(event)}
+              eventAdd={() => handleEventAdd()}
+              datesSet={() => handleDateSet()}
             />
           </Box>
           {open && (
@@ -165,6 +172,8 @@ const CalendarBooking = () => {
               handleOpen={handleOpen}
               handleClose={handleClose}
               changeMessage={changeMessage}
+              start={start}
+              end={end}
             />
           )}
         </Grid>

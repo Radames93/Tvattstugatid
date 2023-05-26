@@ -23,13 +23,27 @@ const style = {
   p: 4,
 };
 
-export default function ({ handleClose, open, handleOpen, changeMessage }) {
+export default function ({
+  handleClose,
+  open,
+  handleOpen,
+  changeMessage,
+  start,
+  end,
+}) {
   const [value, setValue] = useState("");
   const unique_id = uuid();
   const [title, setTitle] = useState("");
   const { user } = UserAuth();
   const email = user.email;
-  let data = {};
+  let data = {
+    unique_id: "",
+    title: "",
+    email: "",
+    value: "",
+    start: "",
+    end: "",
+  };
 
   const handleChange = (event) => {
     setValue(event.target.value);
@@ -48,13 +62,11 @@ export default function ({ handleClose, open, handleOpen, changeMessage }) {
       title,
       email,
       value,
+      start,
+      end,
     };
     changeMessage(data);
     console.log(data);
-    setTimeout(function () {
-      handleReset();
-    }, 15000);
-    handleClose();
   };
 
   return (
@@ -67,21 +79,45 @@ export default function ({ handleClose, open, handleOpen, changeMessage }) {
           aria-describedby="modal-modal-description"
         >
           <Box sx={style} component="form" onSubmit={onSubmit}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
+            <Typography
+              sx={{
+                textAlign: "center",
+              }}
+              id="modal-modal-title"
+              variant="h6"
+              component="h2"
+            >
               Number of the room or name
             </Typography>
-            <TextField
-              placeholder="number or room or name"
-              id="outlined-basic"
+            <Box sx={{ textAlign: "center" }}>
+              <TextField
+                fullWidth
+                placeholder="number or room or name"
+                id="outlined-basic"
+                sx={{
+                  "& .css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input": {
+                    padding: 0,
+                    textAlign: "center",
+                  },
+                }}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </Box>
+            <FormControl
               sx={{
-                "& .css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input": {
-                  padding: 0,
-                },
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
               }}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <FormControl>
-              <Typography id="modal-modal-title" variant="h6" component="h2">
+            >
+              <Typography
+                sx={{
+                  textAlign: "center",
+                }}
+                id="modal-modal-title"
+                variant="h6"
+                component="h2"
+              >
                 Which pass do you want to book?
               </Typography>
               <RadioGroup
@@ -101,7 +137,15 @@ export default function ({ handleClose, open, handleOpen, changeMessage }) {
                   label="14:00 - 20:00"
                 />
               </RadioGroup>
-              <Button type="submit">Next</Button>
+              <Button
+                type="submit"
+                color="secondary"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2, textAlign: "center" }}
+              >
+                Next
+              </Button>
             </FormControl>
           </Box>
         </Modal>
